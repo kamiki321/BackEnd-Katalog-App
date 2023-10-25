@@ -10,13 +10,28 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       username: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true,
+        }
       },
       password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: true, // Enforce that the password is not empty
+          check_password: (value) => {
+            if (value.length < 8) {
+              throw new Error('Password must be at least 8 characters long.');
+            }
+          },
+        },
       },
       createdAt: {
         allowNull: false,
@@ -29,6 +44,7 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
+
     await queryInterface.dropTable('Users');
   }
 };
