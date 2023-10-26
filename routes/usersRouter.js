@@ -1,7 +1,9 @@
 const router = require('express').Router()
-const { findAllUsers, getUsersById, createNewUser, updateUser, deleteUser, loginUser, logoutUser } = require('../controller/userController')
+const { findAllUsers, getUsersById, createNewUser, updateUser, deleteUser, loginUser, logoutUser, createNewAdmin, loginAdmin } = require('../controller/userController')
 const verifyToken = require('../middleware/authMiddleware')
 
+router.post('/admin/login', loginAdmin);
+router.post('/admin/register', createNewAdmin);
 router.post('/login', loginUser);
 router.post('/register', createNewUser);
 router.delete('/users/:id', deleteUser);

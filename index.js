@@ -6,6 +6,7 @@ const port = 3333
 const router = require('./routes/index')
 const cors = require('cors');
 const dotenv =require('dotenv')
+require('dotenv').config(); // Load environment variables from .env file
 
 dotenv.config();
 app.use(cors());
