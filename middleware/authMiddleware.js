@@ -26,8 +26,36 @@ const verifyToken = (req, res, next) => {
         };
 
         req.userId = decoded.userId;
+        req.role = decoded.role;
         next();
     });
 };
 
-module.exports = verifyToken;
+const AdminRole = (req, res, next) => {
+    // try {
+    //     if (req.role === 'admin') {
+    //         next();
+    // }
+    // } catch (error) {
+    //     return res.status(403).json({
+    //         status: 'Forbidden',
+    //         message: 'You are not an Admin'
+    //     })
+    // }
+}
+
+const UserRole = (req, res, next) => {
+    // if (req.role === 'user') {
+    //     next(); // User is a regular user, proceed to the next middleware or route
+    // } else {
+    //     return res.status(403).json({
+    //         status: 'Forbidden',
+    //         message: 'You are not a regular user'
+    //     });
+    // }
+}
+
+
+
+
+module.exports = { verifyToken, AdminRole, UserRole };

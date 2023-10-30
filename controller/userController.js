@@ -8,13 +8,9 @@ const findAllUsers = async (req,res) => {
     try{
         const data = await User.findAll()
 
-        const result = {
-            status: 'ok',
-            data: data
-        }
-        res.json(result)
+        res.json(data)
     } catch(error){
-        console.log(error, '<<< error find all books')
+        console.log(error, '<<< error find all user')
     }
 
 }
@@ -119,11 +115,32 @@ const updateUser = async (req, res) => {
         const { username, email, password, roleId } = req.body; // Ganti "role" dengan "roleId"
 
         const user = await User.findByPk(id);
+        const adminRole = await Role.findOne({ where: { name: 'admin' }});
 
         if (!user){
             return res.status(404).json({
                 status:'failed',
                 message: `data pengguna dengan id ${id} tidak ditemukan`
+            });
+        }
+
+        if (!adminRole) {
+            // Jika peran "admin" belum ada, tambahkan peran tersebut ke dalam tabel Roles
+            // Ini bisa dilakukan melalui seeder atau secara manual
+            return res.status(500).json({
+                status: 'error',
+                message: 'Role "admin" belum tersedia. Silakan tambahkan role ini ke dalam tabel Roles terlebih dahulu.'
+            });
+        }
+
+        if (roleId === adminRole.id) {
+            // Hanya izinkan pembaruan jika roleId sesuai dengan peran "admin"
+            // Lakukan pembaruan seperti yang sudah Anda lakukan sebelumnya
+        } else {
+            // Kembalikan kesalahan jika roleId tidak sesuai dengan peran "admin"
+            return res.status(403).json({
+                status: 'error',
+                message: 'Anda tidak memiliki izin untuk mengatur peran selain "admin".'
             });
         }
 
@@ -218,7 +235,7 @@ const loginUser = async (req, res) => {
         // Check if the user has the "admin" role
 
         // Create a JWT token
-        const accessToken = jwt.sign({ id: user.id, email: user.email, role: role.name }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30s' });
+        const accessToken = jwt.sign({ id: user.id, email: user.email, role: role.name }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
 
         // Periksa apakah pengguna memiliki peran "admin"
         if (role.name == 'admin') {
@@ -382,7 +399,7 @@ const loginAdmin = async (req, res) => {
         const accessToken = jwt.sign(
             { id: user.id, email: user.email, role: role.name },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '30s' }
+            { expiresIn: '1h' }
         );
 
         res.status(200).json({

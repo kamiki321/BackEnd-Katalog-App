@@ -19,6 +19,12 @@ app.use(router)
 //protected route using the verifyToken middleware
 
 
+app.use((req, res, next) => {
+    // Log request headers
+    console.log('Request Headers:', req.headers);
+    next();
+});
+
 
 
 // GET, POST, PUT, PATCH, DELETE
