@@ -71,6 +71,9 @@ module.exports = {
       },
       dasar_hukum: {
         type: Sequelize.STRING
+      },
+      kategori: {
+        type: Sequelize.STRING
       }
     });
   },

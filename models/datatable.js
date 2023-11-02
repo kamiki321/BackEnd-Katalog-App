@@ -34,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
     link_api: DataTypes.STRING,
     kesepakatan_pengumpulan_data: DataTypes.INTEGER,
     catatan: DataTypes.STRING,
-    dasar_hukum: DataTypes.STRING
+    dasar_hukum: DataTypes.STRING, 
+    kategori: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'DataTable',

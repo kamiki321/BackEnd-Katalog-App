@@ -175,6 +175,45 @@ const updateUser = async (req, res) => {
     }
 }
 
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const { id } = req.params; // Assuming you have user authentication and you get the user ID from the token.
+
+        // Fetch the user from the database
+        const user = await User.findByPk(id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Compare the current password
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(400).json({ error: 'Current password is incorrect' });
+        }
+
+        // Validate the new password
+        if (!newPassword || newPassword.length < 8) {
+            return res.status(400).json({ error: 'New password cannot be empty or less than 8 characters' });
+        }
+
+        // // Hash the new password
+        // const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password in the database
+        user.password = newPassword; // Assuming your column name is "password"
+        await user.save();
+
+        return res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.status(500).json({ error: 'An error occurred while changing the password' });
+    }
+};
+
+
 
 const deleteUser = async (req, res) => {
     try {
@@ -420,4 +459,4 @@ const loginAdmin = async (req, res) => {
     }
 };
 
-module.exports = {findAllUsers, getUsersById, createNewUser, updateUser, deleteUser, loginUser, loginAdmin, logoutUser, createNewAdmin}
+module.exports = {findAllUsers, getUsersById, createNewUser, updateUser, deleteUser, loginUser, loginAdmin, logoutUser, createNewAdmin, changePassword}
