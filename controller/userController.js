@@ -37,77 +37,78 @@ const getUsersById = async(req, res) => {
     }
 }
 
-const createNewUser = async(req, res) => {
+const createNewUser = async (req, res) => {
     try {
-        
-        await Promise.all([
-            check('email')
-              .isEmail()
-              .withMessage('Invalid email format')
-              .run(req),
-            check('password')
-                .isLength({ min: 8 }) // Enforce a minimum length of 8 characters
-                .notEmpty()
-                .run(req),
-          ]);
-
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            const emailErrors = errors.array().filter((error) => error.param === 'email');
-            const passwordErrors = errors.array().filter((error) => error.param === 'password');
-      
-            return res.status(400).json({
-              status: 'error',
-              errors: {
-                email: emailErrors.length > 0 ? emailErrors[0].msg : 'email cannot be empty or the same with existed email',
-                password: passwordErrors.length > 0 ? passwordErrors[0].msg : 'password cannot be empty or less than 8 char',
-              },
-            });
-          }
-        
-
-
-        const { username, email, password  } = req.body
-
-        const alreadyExistUser = await User.findOne({ where: { email }}).catch(
-            (err) => {
-                console.log("Error: ", err)
-            }
-        );
-
-        if (alreadyExistUser){
-            return res.status(400).json({
-                status: 'error', 
-                message: "Email already taken"
-            })
+      await Promise.all([
+        check('email')
+          .isEmail()
+          .withMessage('Invalid email format')
+          .run(req),
+        check('password')
+          .isLength({ min: 8 })
+          .withMessage('Password must be at least 8 characters')
+          .matches(/[!@#$%^&*(),.?":{}|<>]/)
+          .withMessage('Password must contain at least one special character')
+          .matches(/[A-Z]/)
+          .withMessage('Password must contain at least one uppercase letter')
+          .notEmpty()
+          .run(req),
+      ]);
+  
+      const errors = validationResult(req);
+  
+      if (!errors.isEmpty()) {
+        const emailErrors = errors.array().filter((error) => error.param === 'email');
+        const passwordErrors = errors.array().filter((error) => error.param === 'password');
+  
+        return res.status(400).json({
+          status: 'error',
+          errors: {
+            email: emailErrors.length > 0 ? emailErrors[0].msg : 'email cannot be empty or the same with an existing email',
+            password: passwordErrors.length > 0 ? passwordErrors[0].msg : 'password must meet the specified criteria',
+          },
+        });
+      }
+  
+      const { username, email, password } = req.body;
+  
+      const alreadyExistUser = await User.findOne({ where: { email }}).catch(
+        (err) => {
+          console.log("Error: ", err)
         }
-
-        const newUser = await User.create({
-            username: username, 
-            email: email, 
-            password: password,
-            roleId: 2
-        })
-        
-        
-        res.status(201).json({
-            status : 'ok',
-            data : {
-                id: newUser.id,
-                username: newUser.username,
-                email: newUser.email,
-                password: newUser.password,
-                role: newUser.roleId,
-                createdAt: newUser.createdAt,
-                updatedAt: newUser.updatedAt
-            }
-        })
+      );
+  
+      if (alreadyExistUser) {
+        return res.status(400).json({
+          status: 'error',
+          message: "Email already taken"
+        });
+      }
+  
+      const newUser = await User.create({
+        username: username,
+        email: email,
+        password: password,
+        roleId: 2
+      });
+  
+      res.status(201).json({
+        status: 'ok',
+        data: {
+          id: newUser.id,
+          username: newUser.username,
+          email: newUser.email,
+          password: newUser.password,
+          role: newUser.roleId,
+          createdAt: newUser.createdAt,
+          updatedAt: newUser.updatedAt
+        }
+      });
     } catch (error) {
-            console.log(error, '<---- error create new user')
-        
+      console.log(error, '<---- error create new user');
     }
-}
+  };
+  
 
 const updateUser = async (req, res) => {
     try {
